@@ -6,6 +6,11 @@ const cors = require("cors");
 require("dotenv").config();
 const PORT = process.env.PORT || 8080;
 const URL = process.env.MONGO_URI;
+app.use(
+  cors({
+    origin: "https://quick2qr.netlify.app",
+  })
+);
 
 // connect mongodb
 mongoose
@@ -21,7 +26,6 @@ mongoose
     console.error(err);
   });
 
-app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/auth", require("./routes/useRoutes"));

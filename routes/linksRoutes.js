@@ -9,4 +9,6 @@ router.post("/", setLinks.createLink);
 
 router.get("/:id", setLinks.getLinksById);
 
+router.get("/user/:id", setLinks.getLinksByUserId);
+
 module.exports = router;
