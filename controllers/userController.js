@@ -30,6 +30,7 @@ exports.Register = async (req, res) => {
       username: user.username,
       friends: user.friends,
       email: user.email,
+      profilePicture: user.profilePicture,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -63,6 +64,7 @@ exports.Login = async (req, res) => {
       username: user.username,
       friends: user.friends,
       email: user.email,
+      profilePicture: user.profilePicture,
     });
   } catch (err) {
     console.log(err);
@@ -124,94 +126,6 @@ exports.updateUserByID = async (req, res) => {
   // follow user by id
 };
 
-/**
- * Add a user to the current user's friends list and vice-versa
- */
-exports.followUser = async (req, res) => {
-  // ID of the user being followed
-  const { id } = req.params;
-  // ID of the current user
-  const { userId } = req.params;
+// upoload image of user
 
-  try {
-    // Find the user being followed in the collection of friends
-    const userBeingFollowed = await User.findById(id, {
-      friends: 1,
-    });
-
-    if (!userBeingFollowed) {
-      return res.status(404).json({ message: "User being followed not found" });
-    }
-
-    // Find the current user in the collection of friends
-    const currentUser = await User.findById(userId, {
-      friends: 1,
-    });
-
-    if (!currentUser) {
-      return res.status(404).json({ message: "Current user not found" });
-    }
-
-    // Check if the user being followed is already a friend of the current user
-    const isUserBeingFollowedFriend =
-      userBeingFollowed.friends.includes(userId);
-    // Check if the current user is already a friend of the user being followed
-    const isCurrentUserFriend = currentUser.friends.includes(id);
-
-    if (isUserBeingFollowedFriend && isCurrentUserFriend) {
-      // If both users are already friends, return without making any changes
-      return res
-        .status(200)
-        .json({ message: "Both users are already friends" });
-    }
-
-    // If the user being followed is not already a friend of the current user, add them as a friend
-    if (!isUserBeingFollowedFriend) {
-      userBeingFollowed.friends.push(userId);
-    }
-
-    // If the current user is not already a friend of the user being followed, add them as a friend
-    if (!isCurrentUserFriend) {
-      currentUser.friends.push(id);
-    }
-
-    // Save the changes to the user documents
-    await Promise.all([userBeingFollowed.save(), currentUser.save()]);
-
-    res.status(200).json({ message: "Users are now friends" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.unfollowUser = async (req, res) => {
-  const { id } = req.params;
-  const { userId } = req.params;
-
-  try {
-    const targetUser = await User.findById(userId);
-    if (!targetUser) return res.status(404).json({ message: "User not found" });
-
-    const currentUser = await User.findById(id);
-    if (!currentUser)
-      return res.status(404).json({ message: "Current user not found" });
-
-    // Remove the target user from the current user's friends list
-    currentUser.friends = currentUser.friends.filter(
-      (friendId) => friendId.toString() !== userId
-    );
-    await currentUser.save();
-
-    // Remove the current user from the target user's friends list
-    targetUser.friends = targetUser.friends.filter(
-      (friendId) => friendId.toString() !== id
-    );
-    await targetUser.save();
-
-    res.status(200).json({ message: "User unfollowed successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+// Set storage engine for multer
